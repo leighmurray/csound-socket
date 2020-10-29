@@ -13,10 +13,17 @@
   };
 </script>
 <script src="https://g200kg.github.io/webaudio-controls/webaudio-controls.js"></script>
-
-<webaudio-slider id="sli1" midilearn="1" midicc="1.0" src="/public/img/vsliderbody.png" knobsrc="/public/img/vsliderknob.png" value="1" min="0" max="1" step="0.01" basewidth="24" baseheight="128" knobwidth="24" knobheight="24" ditchlength="100" tooltip="Slider-L"></webaudio-slider>
-<webaudio-knob id="amplitudeKnob" midilearn="1" midicc="1.1" src="/public/img/LittlePhatty.png" value="0.5" step="0.01" min="0" max="0.7" diameter="64" tooltip="Amplitude"></webaudio-knob>
-<webaudio-knob id="cfKnob" src="/public/img/LittlePhatty.png" value="880" step="1" min="880" max="3000" diameter="64" tooltip="Cutoff Frequency"></webaudio-knob>
+<p>
+  Instrument: <webaudio-knob id="instrumentKnob" src="/public/img/MiniMoog_Main.png" value="1" step="1" min="1" max="12" diameter="64" tooltip="Instrument Number"></webaudio-knob>
+  <webaudio-param link="instrumentKnob"></webaudio-param>
+</p>
+<p>
+  Amplitude: <webaudio-knob id="amplitudeKnob" midilearn="1" midicc="1.1" src="/public/img/LittlePhatty.png" value="0.7" step="0.05" min="0" max="0.7" diameter="64" tooltip="Amplitude"></webaudio-knob>
+</p>
+<p>
+  Cutoff Frequency: <webaudio-knob id="cfKnob" src="/public/img/LittlePhatty.png" value="880" step="1" min="880" max="3000" diameter="64" tooltip="Cutoff Frequency"></webaudio-knob>
+</p>
+<!-- <webaudio-slider id="sli1" midilearn="1" midicc="1.0" src="/public/img/vsliderbody.png" knobsrc="/public/img/vsliderknob.png" value="1" min="0" max="1" step="0.01" basewidth="24" baseheight="128" knobwidth="24" knobheight="24" ditchlength="100" tooltip="Slider-L"></webaudio-slider> -->
 
 <br>
 <webaudio-keyboard id="kbd"></webaudio-keyboard>

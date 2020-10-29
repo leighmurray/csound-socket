@@ -1,59 +1,95 @@
 var amplitudeKnob = document.getElementById("amplitudeKnob");
 var cutoffFrequencyKnob = document.getElementById("cfKnob");
+var instrumentKnob = document.getElementById("instrumentKnob");
 var socket = io();
+var gInstrumentNumber = 1;
 
-function local_note_on(noteValue){
-    socket.emit('note on', noteValue);
+function changeInstrument(instrumentNumber){
+    console.log("changing instrument");
+    gInstrumentNumber = instrumentNumber;
+    socket.emit('change instrument', instrumentNumber);
 }
 
-socket.on('note on', function(noteValue){
-    Play(noteValue);
+function init() {
+    console.log("init");
+    socket.emit('init');
+}
+
+function local_note_on(noteValue, velocity=90){
+    socket.emit('note on', gInstrumentNumber, noteValue, velocity);
+}
+
+socket.on('instrument data', function(instrumentNumber, amplitude, cutoffFrequency){
+    console.log("Got Instument Data");
+    SetAmp(instrumentNumber, amplitude);
+    SetCutoffFrequency(instrumentNumber, cutoffFrequency);
+});
+
+socket.on('note on', function(channel, noteValue, velocity){
+    Play(channel, noteValue, velocity);
 });
 
 function local_note_off(noteValue){
-    socket.emit('note off', noteValue);
+    socket.emit('note off', gInstrumentNumber, noteValue);
 }
 
-socket.on('note off', function(noteValue){
-    Stop(noteValue);
+socket.on('note off', function(channel, noteValue){
+    Stop(channel, noteValue);
 });
 
 function local_amplitude_change(amplitude)
 {
-    socket.emit('amplitude', amplitude);
+    socket.emit('amplitude', gInstrumentNumber, amplitude);
 }
-socket.on('amplitude', function(amplitude){
-    SetAmp(amplitude);
+
+socket.on('amplitude', function(lInstrumentNumber, amplitude){
+    SetAmp(lInstrumentNumber, amplitude);
 });
+
 function local_cutoff_frequency_change(cutoffFreqency)
 {
-    socket.emit('cutoff frequency', cutoffFreqency);
+    socket.emit('cutoff frequency', gInstrumentNumber, cutoffFreqency);
 }
-socket.on('cutoff frequency', function(cutoffFreqency){
-    SetCutoffFrequency(cutoffFreqency);
+
+socket.on('cutoff frequency', function(lInstrumentNumber, cutoffFreqency){
+    SetCutoffFrequency(lInstrumentNumber, cutoffFreqency);
 });
+
+function getInstrumentString(instrumentNumber) {
+    return `
+    instr ${instrumentNumber}
+    icps = cpsmidi()
+    chnset icps, \"freq\"
+    kAmp chnget \"amp${instrumentNumber}\"
+    kCutoffFrequency chnget "cf${instrumentNumber}"
+    k1 linenr 0.5,0.01,0.1, 0.01
+    a1 vco2 kAmp, icps
+    a2 moogvcf a1, kCutoffFrequency, 0.8
+    outs a2,a2
+    endin`
+}
+
+function getOrchestraString(numberOfInstruments = 1) {
+    var orchestraString = `0dbfs = 1
+        nchnls = 2`;
+    for (var i=1; i<= numberOfInstruments; i++){
+        orchestraString += `
+        massign ${i},${i}`
+    }
+    for (var i=1; i<= numberOfInstruments; i++){
+        orchestraString += getInstrumentString(i);
+    }
+    console.log(orchestraString);
+    return orchestraString;
+}
 
 function moduleDidLoad() {
     console.log("working");
     console.log = handleMessage;
     console.warn = handleMessage;
     csound.Play();
-    csound.CompileOrc(
-        `0dbfs = 1
-        nchnls = 2
-        massign 1,1
-        instr 1
-        icps = cpsmidi()
-        chnset icps, \"freq\"
-        kAmp chnget \"amp\"
-        kCutoffFrequency chnget "cf"
-        k1 linenr 0.5,0.01,0.1, 0.01
-        a1 vco2 kAmp, icps
-        a2 moogvcf a1, kCutoffFrequency, 0.8
-        outs a2,a2
-        endin`
-    );
-    SetAmp(.2);
+    csound.CompileOrc(getOrchestraString(12));
+    init();
     if (navigator.requestMIDIAccess)
         navigator.requestMIDIAccess().then(WebMIDI_init, WebMIDI_err);
     else
@@ -77,11 +113,11 @@ function onMIDIEvent(event) {
     switch (event.data[0] & 0xf0) {
     case 0x90:
         if (event.data[2]!=0) {
-        csound.NoteOn(1, event.data[1], event.data[2]);
-        return;
+            local_note_on(event.data[1], event.data[2]);
+            return;
         }
     case 0x80:
-        csound.NoteOff(1, event.data[1], event.data[2]);
+        local_note_off(event.data[1], event.data[2]);
         return;
     }
 }
@@ -104,18 +140,14 @@ function WebMIDI_err(err) {
     console.log("Error starting WebMIDI");
 }
 
-var playing = false;
 // click handler
-function Play(note) {
-    csound.NoteOn(1, note, 60);
-    playing = true;
+function Play(channel, note, velocity,) {
+    csound.NoteOn(channel, note, velocity);
+
 }
 
-function Stop(note) {
-    if (playing) {
-        csound.NoteOff(1, note, 60);
-        playing = false;
-    }
+function Stop(channel, note) {
+    csound.NoteOff(channel, note, 127);
 }
 
 document.getElementById("kbd").addEventListener("change",(event)=>{
@@ -133,6 +165,9 @@ document.getElementById("kbd").addEventListener("change",(event)=>{
     }
 });
 
+instrumentKnob.addEventListener('input', (event)=>{
+    changeInstrument(event.target.value);
+});
 
 amplitudeKnob.addEventListener("input",(event)=>{
     local_amplitude_change(event.target.value);
@@ -143,14 +178,18 @@ cutoffFrequencyKnob.addEventListener("input",(event)=>{
 });
 
 // set amplitude
-function SetAmp(value) {
-    SetParam('amp', value, 1., 0.0);
-    amplitudeKnob.setValue(value);
+function SetAmp(instrumentNumber, value) {
+    SetParam('amp' + instrumentNumber, value);
+    if (instrumentNumber == gInstrumentNumber){
+        amplitudeKnob.setValue(value);
+    }
 }
 
-function SetCutoffFrequency(value) {
-    SetParam('cf', value, 1., 0.0);
-    cutoffFrequencyKnob.setValue(value);
+function SetCutoffFrequency(instrumentNumber, value) {
+    SetParam('cf' + instrumentNumber, value);
+    if (instrumentNumber == gInstrumentNumber){
+        cutoffFrequencyKnob.setValue(value);
+    }
 }
 
 // set parameter
@@ -166,7 +205,7 @@ document.getElementById("start").addEventListener("click",(event)=>{
         console.log("starting the midi");
         CsoundObj.CSOUND_AUDIO_CONTEXT.resume();
         started = true;
-      }
+    }
 });
 
 document.getElementById("refresh").addEventListener("click",(event)=>{
