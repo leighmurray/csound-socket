@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MCT Csound</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+</head>
+<body>
+<script type="text/javascript" src="/public/js/csound.js"></script>
+<script>
+  WebAudioControlsOptions={
+    useMidi:1,
+    preserveMidiLearn:1,
+  };
+</script>
+<script src="https://g200kg.github.io/webaudio-controls/webaudio-controls.js"></script>
+
+<webaudio-slider id="sli1" midilearn="1" midicc="1.0" src="/public/img/vsliderbody.png" knobsrc="/public/img/vsliderknob.png" value="1" min="0" max="1" step="0.01" basewidth="24" baseheight="128" knobwidth="24" knobheight="24" ditchlength="100" tooltip="Slider-L"></webaudio-slider>
+<webaudio-knob id="amplitudeKnob" midilearn="1" midicc="1.1" src="/public/img/LittlePhatty.png" value="0.5" step="0.01" min="0" max="0.7" diameter="64" tooltip="Amplitude"></webaudio-knob>
+<webaudio-knob id="cfKnob" src="/public/img/LittlePhatty.png" value="880" step="1" min="880" max="3000" diameter="64" tooltip="Cutoff Frequency"></webaudio-knob>
+
+<br>
+<webaudio-keyboard id="kbd"></webaudio-keyboard>
+<br>
+<textarea class="console" rows="20" id="console">Csound: not loaded</textarea>
+<button id="start">Start</button>
+<button id="refresh">Refresh</button>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/public/js/main.js"></script>
+</body>
+</html>
