@@ -191,6 +191,67 @@ function getOrchestraString(numberOfInstruments = 1) {
     return orchestraString;
 }
 
+function makeDisplays() {
+    scopeNode = CsoundObj.CSOUND_AUDIO_CONTEXT.createAnalyser();
+    csound.Csound.getNode().connect(scopeNode);
+
+    scope = function() {
+
+        let ctx = document.getElementById('scope').getContext('2d');
+        let width = ctx.canvas.width;
+        let height = ctx.canvas.height;
+        let timeData = new Uint8Array(scopeNode.frequencyBinCount);
+        let scaling = height / 256;
+        let risingEdge = 0;
+        let edgeThreshold = 5;
+        scopeNode.getByteTimeDomainData(timeData);
+
+        ctx.fillStyle = 'rgba(0, 20, 0, 0.1)';
+        ctx.fillRect(0, 0, width, height);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#3300ff";
+        ctx.beginPath();
+
+
+        while (timeData[risingEdge++] - 128 > 0 && risingEdge <= width);
+        if (risingEdge >= width) risingEdge = 0;
+        while (timeData[risingEdge++] - 128 < edgeThreshold &&
+        risingEdge <= width);
+        if (risingEdge >= width) risingEdge = 0;
+        for (var x = risingEdge; x < timeData.length &&
+        x - risingEdge < width; x++)
+        ctx.lineTo(x - risingEdge, height - timeData[x] * scaling);
+        ctx.stroke();
+
+        requestAnimationFrame(scope);
+    }
+
+    scope();
+
+    mags = function() {
+        let ctx = document.getElementById('mags').getContext('2d');
+        let width = ctx.canvas.width;
+        let height = ctx.canvas.height;
+        let freqData = new Uint8Array(scopeNode.frequencyBinCount);
+        let scaling = height / 256;
+
+        scopeNode.getByteFrequencyData(freqData);
+
+        ctx.fillStyle = 'rgba(0, 20, 0, 0.1)';
+        ctx.fillRect(0, 0, width, height);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#ff3300";
+        ctx.beginPath();
+
+        for (var x = 0; x < width; x++)
+        ctx.lineTo(x, height - freqData[x] * scaling);
+
+        ctx.stroke();
+        requestAnimationFrame(mags);
+    }
+    mags();
+}
+
 function moduleDidLoad() {
     console.log("working");
     console.log = handleMessage;
@@ -202,6 +263,7 @@ function moduleDidLoad() {
         navigator.requestMIDIAccess().then(WebMIDI_init, WebMIDI_err);
     else
         console.log("No WebMIDI support");
+    makeDisplays();
 }
 var count = 0;
 
