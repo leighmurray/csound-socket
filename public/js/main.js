@@ -1,8 +1,32 @@
-var amplitudeKnob = document.getElementById("amplitudeKnob");
-var cutoffFrequencyKnob = document.getElementById("cfKnob");
-var instrumentKnob = document.getElementById("instrumentKnob");
 var socket = io();
 var gInstrumentNumber = 1;
+
+var knobs = {
+    'cutoffFrequency': document.getElementById("cfKnob"),
+    'amplitude': document.getElementById("amplitudeKnob"),
+    'pulseWidth': document.getElementById("pwKnob"),
+    'clip': document.getElementById("clipKnob"),
+    'skew': document.getElementById("skewKnob")
+}
+
+document.getElementById("instrument").addEventListener('change', (event)=>{
+    changeInstrument(parseInt(event.target.value));
+});
+
+document.getElementById("username").addEventListener('change', (event)=>{
+    changeName(event.target.value);
+});
+
+document.getElementById("panic").addEventListener('click', (event)=>{
+    console.log("PANIC!!!");
+    for (var i=1; i<=12; i++){
+        csound.ControlChange(i, 123);
+    }
+});
+
+function changeName(newName){
+    socket.emit('set name', newName);
+}
 
 function changeInstrument(instrumentNumber){
     console.log("changing instrument");
@@ -13,71 +37,155 @@ function changeInstrument(instrumentNumber){
 function init() {
     console.log("init");
     socket.emit('init');
+
+    for (const [parameter, knob] of Object.entries(knobs)) {
+        knob.addEventListener("input",(event)=>{
+            local_parameter_change(parameter, event.target.value);
+        });
+    }
 }
+
+socket.on('instrument data', function(instrumentNumber, instrumentData){
+    console.log("Got Instument Data");
+    for (const [parameter, value] of Object.entries(instrumentData)) {
+        SetParameter(instrumentNumber, parameter, value)
+    }
+});
 
 function local_note_on(noteValue, velocity=90){
     socket.emit('note on', gInstrumentNumber, noteValue, velocity);
+    Play(gInstrumentNumber, noteValue, velocity);
 }
 
-socket.on('instrument data', function(instrumentNumber, amplitude, cutoffFrequency){
-    console.log("Got Instument Data");
-    SetAmp(instrumentNumber, amplitude);
-    SetCutoffFrequency(instrumentNumber, cutoffFrequency);
-});
-
 socket.on('note on', function(channel, noteValue, velocity){
+    console.log(`Playing note ${noteValue}, ${velocity} on ${channel}`);
     Play(channel, noteValue, velocity);
 });
 
 function local_note_off(noteValue){
     socket.emit('note off', gInstrumentNumber, noteValue);
+    Stop(gInstrumentNumber, noteValue);
 }
 
 socket.on('note off', function(channel, noteValue){
     Stop(channel, noteValue);
 });
 
-function local_amplitude_change(amplitude)
-{
-    socket.emit('amplitude', gInstrumentNumber, amplitude);
+function local_parameter_change(parameter, value) {
+    socket.emit('parameter change', gInstrumentNumber, parameter, value);
 }
 
-socket.on('amplitude', function(lInstrumentNumber, amplitude){
-    SetAmp(lInstrumentNumber, amplitude);
+socket.on('parameter change', function(channel, parameter, value){
+    SetParameter(channel, parameter, value);
 });
 
-function local_cutoff_frequency_change(cutoffFreqency)
-{
-    socket.emit('cutoff frequency', gInstrumentNumber, cutoffFreqency);
-}
-
-socket.on('cutoff frequency', function(lInstrumentNumber, cutoffFreqency){
-    SetCutoffFrequency(lInstrumentNumber, cutoffFreqency);
+socket.on('user data', function (userdata) {
+    var userTableBody = document.getElementById("users").querySelector('tbody');
+    userTableBody.innerHTML = "";
+    for (var userID in userdata) {
+        var user = userdata[userID];
+        userRow = `<tr><td>${user.name}</td><td>${user.channel}</td></tr>`;
+        userTableBody.innerHTML += userRow;
+    }
 });
 
 function getInstrumentString(instrumentNumber) {
     return `
     instr ${instrumentNumber}
+    iAtt = 0.01
+    iDec = 0.0
+    iSus = 1.0
+    iRel = 0.1
+    kEnv madsr iAtt, iDec, iSus, iRel
     icps = cpsmidi()
-    chnset icps, \"freq\"
-    kAmp chnget \"amp${instrumentNumber}\"
-    kCutoffFrequency chnget "cf${instrumentNumber}"
-    k1 linenr 0.5,0.01,0.1, 0.01
+    kAmp chnget "amplitude${instrumentNumber}"
+    kCutoffFrequency chnget "cutoffFrequency${instrumentNumber}"
     a1 vco2 kAmp, icps
     a2 moogvcf a1, kCutoffFrequency, 0.8
-    outs a2,a2
+    outs a2*kEnv,a2*kEnv
+    endin`
+}
+
+function getVco2String(instrumentNumber, iMode = 0) {
+    return `
+    instr ${instrumentNumber}
+    iAtt = 0.01
+    iDec = 0.0
+    iSus = 1.0
+    iRel = 0.1
+    iMode = ${iMode}
+    kEnv madsr iAtt, iDec, iSus, iRel
+    icps = cpsmidi()
+    kAmp chnget "amplitude${instrumentNumber}"
+    kCutoffFrequency chnget "cutoffFrequency${instrumentNumber}"
+    kPulseWidth chnget "pulseWidth${instrumentNumber}"
+    a1 vco2 kAmp, icps, iMode, kPulseWidth
+    a2 moogvcf a1, kCutoffFrequency, 0.8
+    outs a2*kEnv,a2*kEnv
+    endin`
+}
+
+function getOscilString(instrumentNumber){
+    return `
+    instr ${instrumentNumber}
+    iAtt = 0.01
+    iDec = 0.0
+    iSus = 1.0
+    iRel = 0.1
+    kEnv madsr iAtt, iDec, iSus, iRel
+    icps = cpsmidi()
+    kAmp chnget "amplitude${instrumentNumber}"
+    kCutoffFrequency chnget "cutoffFrequency${instrumentNumber}"
+    a1 oscil kAmp, icps
+    a2 moogvcf a1, kCutoffFrequency, 0.8
+    outs a2*kEnv,a2*kEnv
     endin`
 }
 
 function getOrchestraString(numberOfInstruments = 1) {
-    var orchestraString = `0dbfs = 1
-        nchnls = 2`;
+    var orchestraString = "";
     for (var i=1; i<= numberOfInstruments; i++){
         orchestraString += `
         massign ${i},${i}`
     }
     for (var i=1; i<= numberOfInstruments; i++){
-        orchestraString += getInstrumentString(i);
+        switch (i) {
+            case 1:
+                // Triange Wave
+                orchestraString += getVco2String(i, 12);
+                break;
+            case 2:
+                // Square Wave
+                orchestraString += getVco2String(i, 10);
+                break;
+            case 3:
+                // integrated Sawtooth Wave
+                orchestraString += getVco2String(i, 8);
+                break;
+            case 4:
+                // Pulse Wave
+                orchestraString += getVco2String(i, 6);
+                break;
+            case 5:
+                // Sawthooth/Triangle/Ramp Wave
+                orchestraString += getVco2String(i, 4);
+                break;
+            case 6:
+                // Square/PWM Wave
+                orchestraString += getVco2String(i, 2);
+                break;
+            case 7:
+                // Sawthooth Wave
+                orchestraString += getVco2String(i, 0);
+                break;
+            case 8:
+                // Sine Wave
+                orchestraString += getOscilString(i);
+                break;
+            default:
+                orchestraString += getInstrumentString(i);
+        }
+
     }
     console.log(orchestraString);
     return orchestraString;
@@ -109,7 +217,6 @@ function handleMessage(message) {
 }
 
 function onMIDIEvent(event) {
-    console.log("happening here instead");
     switch (event.data[0] & 0xf0) {
     case 0x90:
         if (event.data[2]!=0) {
@@ -165,37 +272,15 @@ document.getElementById("kbd").addEventListener("change",(event)=>{
     }
 });
 
-instrumentKnob.addEventListener('input', (event)=>{
-    changeInstrument(event.target.value);
-});
-
-amplitudeKnob.addEventListener("input",(event)=>{
-    local_amplitude_change(event.target.value);
-});
-
-cutoffFrequencyKnob.addEventListener("input",(event)=>{
-    local_cutoff_frequency_change(event.target.value);
-});
-
-// set amplitude
-function SetAmp(instrumentNumber, value) {
-    SetParam('amp' + instrumentNumber, value);
-    if (instrumentNumber == gInstrumentNumber){
-        amplitudeKnob.setValue(value);
-    }
-}
-
-function SetCutoffFrequency(instrumentNumber, value) {
-    SetParam('cf' + instrumentNumber, value);
-    if (instrumentNumber == gInstrumentNumber){
-        cutoffFrequencyKnob.setValue(value);
-    }
-}
 
 // set parameter
-function SetParam(name, value) {
-    csound.SetChannel(name, value);
-    console.log("Setting - " + name + ": " + value);
+function SetParameter(channel, parameter, value) {
+    var name = parameter + channel;
+    csound.SetChannel(name , value);
+    console.log("\n********Setting - " + name + ": " + value + "****************\n");
+    if (channel == gInstrumentNumber) {
+        knobs[parameter].setValue(value);
+    }
 }
 
 var started = false;

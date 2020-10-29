@@ -3,6 +3,59 @@
 <head>
 <title>MCT Csound</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<style>
+  .knob-wrapper {
+    padding: 10px 20px;
+    float:left;
+    border: solid 1px black;
+    border-radius: 10px;
+    margin: 3px;
+    text-align: center;
+    font: 14px "OpenSansRegular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #9c9c9c;
+    font-weight: 700;
+    box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724;
+    background: #474741;
+    -moz-box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724;
+    -webkit-box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724;
+    box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724
+  }
+  .knob {
+    padding: 10px;
+    margin: auto;
+  }
+  table {
+    border-collapse: collapse;
+    margin: 0 5px;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  }
+  table thead tr {
+      background-color: #009879;
+      color: #ffffff;
+      text-align: center;
+  }
+  table th,
+  table td {
+      padding: 12px 15px;
+  }
+  table td + td {
+    text-align: center;
+  }
+  table tbody tr {
+      border-bottom: 1px solid #dddddd;
+  }
+
+  table tbody tr:nth-of-type(even) {
+      background-color: #f3f3f3;
+  }
+
+  table tbody tr:last-of-type {
+      border-bottom: 2px solid #009879;
+  }
+</style>
 </head>
 <body>
 <script type="text/javascript" src="/public/js/csound.js"></script>
@@ -13,22 +66,94 @@
   };
 </script>
 <script src="https://g200kg.github.io/webaudio-controls/webaudio-controls.js"></script>
-<p>
-  Instrument: <webaudio-knob id="instrumentKnob" src="/public/img/MiniMoog_Main.png" value="1" step="1" min="1" max="12" diameter="64" tooltip="Instrument Number"></webaudio-knob>
-  <webaudio-param link="instrumentKnob"></webaudio-param>
-</p>
-<p>
-  Amplitude: <webaudio-knob id="amplitudeKnob" midilearn="1" midicc="1.1" src="/public/img/LittlePhatty.png" value="0.7" step="0.05" min="0" max="0.7" diameter="64" tooltip="Amplitude"></webaudio-knob>
-</p>
-<p>
-  Cutoff Frequency: <webaudio-knob id="cfKnob" src="/public/img/LittlePhatty.png" value="880" step="1" min="880" max="3000" diameter="64" tooltip="Cutoff Frequency"></webaudio-knob>
-</p>
-<!-- <webaudio-slider id="sli1" midilearn="1" midicc="1.0" src="/public/img/vsliderbody.png" knobsrc="/public/img/vsliderknob.png" value="1" min="0" max="1" step="0.01" basewidth="24" baseheight="128" knobwidth="24" knobheight="24" ditchlength="100" tooltip="Slider-L"></webaudio-slider> -->
-
+<div class="knob-wrapper">
+  <label for="username">Name:</label>
+  <input type="text" id="username" name="username" value="anon">
+  <label for="instrument">Instrument/MIDI Channel</label>
+  <select name="instrument" id="instrument">
+    <option value="1">1: Triangle Wave</option>
+    <option value="2">2: Square Wave</option>
+    <option value="3">3: Integrated Sawtooth Wave</option>
+    <option value="4">4: Pulse Wave</option>
+    <option value="5">5: Sawthooth/Triangle/Ramp Wave</option>
+    <option value="6">6: Square/PWM Wave</option>
+    <option value="7">7: Sawthooth Wave</option>
+    <option value="8">8: Sine Wave</option>
+    <option value="9">9: Triangle Wave</option>
+    <option value="10">10: Saw Wave</option>
+    <option value="11">11: Saw Wave</option>
+    <option value="12">12: Saw Wave</option>
+  </select>
+</div>
+<div style="clear: both;"></div>
+<div class="knob-wrapper">
+  <div class="knob-title">
+    Amplitude
+  </div>
+  <div class="knob">
+    <webaudio-knob id="amplitudeKnob" midilearn="1" midicc="1.1" src="/public/img/LittlePhatty.png" value="0.7" step="0.05" min="0" max="0.7" diameter="64" ></webaudio-knob>
+  </div>
+</div>
+<div class="knob-wrapper">
+  <div class="knob-title">
+    Low Pass
+  </div>
+  <div class="knob">
+    <webaudio-knob id="cfKnob" midilearn="1" midicc="1.2" src="/public/img/LittlePhatty.png" value="3000" step="50" min="500" max="3000" diameter="64" ></webaudio-knob>
+  </div>
+</div>
+<div class="knob-wrapper">
+  <div class="knob-title">
+    Pulse Width (Inst 5&6)
+  </div>
+  <div class="knob">
+    <webaudio-knob id="pwKnob" midilearn="1" midicc="1.3" src="/public/img/LittlePhatty.png" value="0.5" step="0.01" min="0.5" max="0.99" diameter="64"></webaudio-knob>
+  </div>
+</div>
+<div class="knob-wrapper">
+  <div class="knob-title">
+    Clip
+  </div>
+  <div class="knob">
+    <webaudio-knob id="clipKnob" midilearn="1" midicc="1.4" src="/public/img/LittlePhatty.png" value="0.5" step="0.1" min="0" max="1" diameter="64"></webaudio-knob>
+  </div>
+</div>
+<div class="knob-wrapper">
+  <div class="knob-title">
+    Skew
+  </div>
+  <div class="knob">
+    <webaudio-knob id="skewKnob" midilearn="1" midicc="1.5" src="/public/img/LittlePhatty.png" value="0" step="0.1" min="-1" max="1" diameter="64"></webaudio-knob>
+  </div>
+</div>
+<div class="knob-wrapper">
+  <div class="knob-title">
+    PANIC!
+  </div>
+  <div class="knob">
+    <webaudio-switch diameter="64" type="kick" id="panic" src="/public/img/redbutton128.png"></webaudio-switch>
+  </div>
+</div>
+<div style="clear:both"></div>
 <br>
-<webaudio-keyboard id="kbd"></webaudio-keyboard>
+<canvas id='scope' width=400 height=200 style="border:1px solid#000000;">
+</canvas>
+  <canvas id='mags' width=400 height=200 style="border:1px solid#000000;">
+</canvas>
 <br>
-<textarea class="console" rows="20" id="console">Csound: not loaded</textarea>
+<webaudio-keyboard id="kbd" keys="32" width="800"></webaudio-keyboard>
+<br>
+<textarea style="float:left;" class="console" rows="20" id="console">Csound: not loaded</textarea>
+<table style="float: left;" id="users">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Instrument</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
 <button id="start">Start</button>
 <button id="refresh">Refresh</button>
 <script src="/socket.io/socket.io.js"></script>

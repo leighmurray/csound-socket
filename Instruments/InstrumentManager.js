@@ -13,14 +13,6 @@ class InstrumentManager {
         this.instruments[instrumentNumber-1][parameter] = value;
     }
 
-    setAmplitude(instrumentNumber, amplitude) {
-        this.instruments[instrumentNumber-1].amplitude = amplitude;
-    }
-
-    setCutoffFrequency(instrumentNumber, cutoffFrequency) {
-        this.instruments[instrumentNumber-1].cutoffFrequency = cutoffFrequency;
-    }
-
     getInstrument(instrumentNumber) {
         return this.instruments[instrumentNumber-1];
     }
