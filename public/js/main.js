@@ -4,9 +4,7 @@ var gInstrumentNumber = 1;
 var knobs = {
     'cutoffFrequency': document.getElementById("cfKnob"),
     'amplitude': document.getElementById("amplitudeKnob"),
-    'pulseWidth': document.getElementById("pwKnob"),
-    'clip': document.getElementById("clipKnob"),
-    'skew': document.getElementById("skewKnob")
+    'pulseWidth': document.getElementById("pwKnob")
 }
 
 document.getElementById("instrument").addEventListener('change', (event)=>{
