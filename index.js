@@ -31,19 +31,23 @@ io.on('connection', (socket) => {
       socket.emit('instrument data', i, instrument);
     }
   });
+
   socket.on('note on', (channel, note, velocity) => {
     console.log(`channel ${channel} - Note On: ${note} - v:${velocity}`);
     socket.broadcast.emit('note on', channel, note, velocity);
   });
+
   socket.on('note off', (channel, note) => {
     console.log(`channel ${channel} - Note Off: ${note}`);
     socket.broadcast.emit('note off', channel, note);
   });
+
   socket.on('parameter change', (channel, parameter, value) => {
     console.log(`channel ${channel} - ${parameter}: ${value}`);
     instrumentManager.setParameter(channel, parameter, value);
     socket.broadcast.emit('parameter change', channel, parameter, value);
   });
+
   socket.on('change instrument', (instrumentNumber) => {
     console.log(`Changing to instrument: ${instrumentNumber}`);
     instrument = instrumentManager.getInstrument(instrumentNumber);
@@ -52,6 +56,7 @@ io.on('connection', (socket) => {
     io.emit('user data', users);
     socket.emit('instrument data', instrumentNumber, instrument);
   });
+
   socket.on('set name', (newName) => {
     newName = newName.trim().substring(0, 32);
     if (!newName) {
@@ -61,6 +66,7 @@ io.on('connection', (socket) => {
     console.log(users);
     io.emit('user data', users);
   });
+
   socket.on('disconnect', () => {
     console.log('user disconnected');
     delete users[userID];
