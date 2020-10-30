@@ -84,6 +84,7 @@ socket.on('note off', function(channel, noteValue){
 
 function local_parameter_change(parameter, value) {
     socket.emit('parameter change', gInstrumentNumber, parameter, value);
+    SetParameter(gInstrumentNumber, parameter, value);
 }
 
 socket.on('parameter change', function(channel, parameter, value){
