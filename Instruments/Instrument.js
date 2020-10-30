@@ -9,6 +9,7 @@ class Instrument {
         this.decay = 0.0;
         this.sustain = 1.0;
         this.release = 0.01;
+        this.multiplier = 1;
     }
 }
 

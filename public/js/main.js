@@ -9,7 +9,8 @@ var knobs = {
     'attack': document.getElementById('attackKnob'),
     'decay': document.getElementById('decayKnob'),
     'sustain': document.getElementById('sustainKnob'),
-    'release': document.getElementById('releaseKnob')
+    'release': document.getElementById('releaseKnob'),
+    'multiplier': document.getElementById('multiplierKnob')
 }
 
 document.getElementById("instrument").addEventListener('change', (event)=>{
@@ -147,9 +148,9 @@ function getGBuzzString(instrumentNumber){
     gicos ftgen 0, 0, 2^10, 11, 1
     ${getCommonString(instrumentNumber)}
     kHarmonics chnget "harmonics${instrumentNumber}"
+    kMultiplier chnget "multiplier${instrumentNumber}"
     klh  =     1          ; lowest harmonic
-    kmul =     1          ; amplitude coefficient multiplier
-    a1 gbuzz kAmp, icps, kHarmonics, klh, kmul, gicos
+    a1 gbuzz kAmp, icps, kHarmonics, klh, kMultiplier, gicos
     a2 moogvcf a1, kCutoffFrequency, 0.8
     outs a2*kEnv,a2*kEnv
     endin`
@@ -284,7 +285,7 @@ function moduleDidLoad() {
 }
 var count = 0;
 
-var enableLogs = true;
+var enableLogs = false;
 
 function handleMessage(message) {
     if (!enableLogs){
