@@ -265,7 +265,12 @@ function moduleDidLoad() {
 }
 var count = 0;
 
+var enableLogs = false;
+
 function handleMessage(message) {
+    if (!enableLogs){
+        return;
+    }
     var element = document.getElementById('console');
     element.value += message;
     element.scrollTop = 99999; // focus on bottom
@@ -352,11 +357,3 @@ document.getElementById("start").addEventListener("click",(event)=>{
         started = true;
     }
 });
-
-document.getElementById("refresh").addEventListener("click",(event)=>{
-    if (csound != null && csound.Csound != null)
-        csound.Csound.destroy();
-    location.reload();
-});
-
-
