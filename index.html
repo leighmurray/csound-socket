@@ -48,10 +48,10 @@
     margin: auto;
   }
   table {
-
+    float:right;
     font-size: 0.9em;
     font-family: sans-serif;
-    min-width: 400px;
+    min-width: 250px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
   }
   table thead tr {
@@ -61,17 +61,16 @@
   }
   table th,
   table td {
-      padding: 12px 15px;
-  }
-  table td + td {
-    text-align: center;
+      padding: 6px;
+      text-align: center;
   }
   table tbody tr {
       border-bottom: 1px solid #dddddd;
+      background-color: #272724;
   }
 
   table tbody tr:nth-of-type(even) {
-      background-color: #f3f3f3;
+      background-color: #66665e;
   }
 
   table tbody tr:last-of-type {
@@ -120,6 +119,14 @@
   </div>
   <div class="knob-wrapper">
     <div class="knob-title">
+      PANIC!
+    </div>
+    <div class="knob">
+      <webaudio-switch diameter="64" type="kick" id="panic" src="/public/img/redbutton128.png"></webaudio-switch>
+    </div>
+  </div>
+  <div class="knob-wrapper">
+    <div class="knob-title">
       Amplitude
     </div>
     <div class="knob">
@@ -148,14 +155,6 @@
     </div>
     <div class="knob">
       <webaudio-knob id="harmonicsKnob" midilearn="1" midicc="1.4" src="/public/img/LittlePhatty.png" value="1" step="1" min="1" max="20" diameter="64"></webaudio-knob>
-    </div>
-  </div>
-  <div class="knob-wrapper">
-    <div class="knob-title">
-      PANIC!
-    </div>
-    <div class="knob">
-      <webaudio-switch diameter="64" type="kick" id="panic" src="/public/img/redbutton128.png"></webaudio-switch>
     </div>
   </div>
   <div class="knob-wrapper">
@@ -193,17 +192,7 @@
     </div>
   </div>
   <div style="clear:both"></div>
-  <br>
-  <canvas id='scope' width=400 height=200 style="border:1px solid#000000;">
-  </canvas>
-    <canvas id='mags' width=400 height=200 style="border:1px solid#000000;">
-  </canvas>
-  <br>
-  <webaudio-keyboard id="kbd" keys="32" width="800"></webaudio-keyboard>
-</div>
-
-<div id="info-wrapper">
-<table style="width:100%" id="users">
+<table id="users">
   <thead>
     <tr>
       <th>Name</th>
@@ -213,6 +202,15 @@
   <tbody>
   </tbody>
 </table>
+  <canvas id='scope' width=400 height=200 style="border:1px solid#000000;">
+  </canvas>
+    <canvas id='mags' width=400 height=200 style="border:1px solid#000000;">
+  </canvas>
+  <br>
+  <webaudio-keyboard id="kbd" keys="32" width="800"></webaudio-keyboard>
+</div>
+
+<div id="info-wrapper">
 <textarea style="width:100%" class="console" rows="10" id="console">Csound: not loaded</textarea>
 </div>
   <script src="/socket.io/socket.io.js"></script>

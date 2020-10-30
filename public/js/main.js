@@ -16,8 +16,9 @@ document.getElementById("instrument").addEventListener('change', (event)=>{
     changeInstrument(parseInt(event.target.value));
 });
 
-document.getElementById("username").addEventListener('change', (event)=>{
-    changeName(event.target.value);
+usernameInput = document.getElementById("username");
+usernameInput.addEventListener('change', ()=>{
+    changeName(usernameInput.value);
 });
 
 document.getElementById("panic").addEventListener('click', (event)=>{
@@ -28,6 +29,7 @@ document.getElementById("panic").addEventListener('click', (event)=>{
 });
 
 function changeName(newName){
+    localStorage.setItem('username', newName);
     socket.emit('set name', newName);
 }
 
@@ -40,6 +42,12 @@ function changeInstrument(instrumentNumber){
 function init() {
     console.log("init");
     socket.emit('init');
+
+    var username = localStorage.getItem('username')
+    if (username){
+        usernameInput.value = username;
+        changeName(username);
+    }
 
     for (const [parameter, knob] of Object.entries(knobs)) {
         knob.addEventListener("input",(event)=>{
@@ -92,9 +100,8 @@ socket.on('user data', function (userdata) {
     }
 });
 
-function getInstrumentString(instrumentNumber) {
-    return `
-    instr ${instrumentNumber}
+function getCommonString(instrumentNumber) {
+    return `instr ${instrumentNumber}
     iAtt chnget "attack${instrumentNumber}"
     iDec chnget "decay${instrumentNumber}"
     iSus chnget "sustain${instrumentNumber}"
@@ -102,7 +109,12 @@ function getInstrumentString(instrumentNumber) {
     kEnv madsr iAtt, iDec, iSus, iRel
     icps = cpsmidi()
     kAmp chnget "amplitude${instrumentNumber}"
-    kCutoffFrequency chnget "cutoffFrequency${instrumentNumber}"
+    kCutoffFrequency chnget "cutoffFrequency${instrumentNumber}"`
+}
+
+function getInstrumentString(instrumentNumber) {
+    return `
+    ${getCommonString(instrumentNumber)}
     a1 vco2 kAmp, icps
     a2 moogvcf a1, kCutoffFrequency, 0.8
     outs a2*kEnv,a2*kEnv
@@ -111,16 +123,8 @@ function getInstrumentString(instrumentNumber) {
 
 function getVco2String(instrumentNumber, iMode = 0) {
     return `
-    instr ${instrumentNumber}
-    iAtt chnget "attack${instrumentNumber}"
-    iDec chnget "decay${instrumentNumber}"
-    iSus chnget "sustain${instrumentNumber}"
-    iRel chnget "release${instrumentNumber}"
+    ${getCommonString(instrumentNumber)}
     iMode = ${iMode}
-    kEnv madsr iAtt, iDec, iSus, iRel
-    icps = cpsmidi()
-    kAmp chnget "amplitude${instrumentNumber}"
-    kCutoffFrequency chnget "cutoffFrequency${instrumentNumber}"
     kPulseWidth chnget "pulseWidth${instrumentNumber}"
     a1 vco2 kAmp, icps, iMode, kPulseWidth
     a2 moogvcf a1, kCutoffFrequency, 0.8
@@ -130,15 +134,7 @@ function getVco2String(instrumentNumber, iMode = 0) {
 
 function getOscilString(instrumentNumber){
     return `
-    instr ${instrumentNumber}
-    iAtt chnget "attack${instrumentNumber}"
-    iDec chnget "decay${instrumentNumber}"
-    iSus chnget "sustain${instrumentNumber}"
-    iRel chnget "release${instrumentNumber}"
-    kEnv madsr iAtt, iDec, iSus, iRel
-    icps = cpsmidi()
-    kAmp chnget "amplitude${instrumentNumber}"
-    kCutoffFrequency chnget "cutoffFrequency${instrumentNumber}"
+    ${getCommonString(instrumentNumber)}
     a1 oscil kAmp, icps
     a2 moogvcf a1, kCutoffFrequency, 0.8
     outs a2*kEnv,a2*kEnv
@@ -148,15 +144,7 @@ function getOscilString(instrumentNumber){
 function getGBuzzString(instrumentNumber){
     return `
     gicos ftgen 0, 0, 2^10, 11, 1
-    instr ${instrumentNumber}
-    iAtt chnget "attack${instrumentNumber}"
-    iDec chnget "decay${instrumentNumber}"
-    iSus chnget "sustain${instrumentNumber}"
-    iRel chnget "release${instrumentNumber}"
-    kEnv madsr iAtt, iDec, iSus, iRel
-    icps = cpsmidi()
-    kAmp chnget "amplitude${instrumentNumber}"
-    kCutoffFrequency chnget "cutoffFrequency${instrumentNumber}"
+    ${getCommonString(instrumentNumber)}
     kHarmonics chnget "harmonics${instrumentNumber}"
     klh  =     1          ; lowest harmonic
     kmul =     1          ; amplitude coefficient multiplier
