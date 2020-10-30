@@ -4,7 +4,12 @@ var gInstrumentNumber = 1;
 var knobs = {
     'cutoffFrequency': document.getElementById("cfKnob"),
     'amplitude': document.getElementById("amplitudeKnob"),
-    'pulseWidth': document.getElementById("pwKnob")
+    'pulseWidth': document.getElementById("pwKnob"),
+    'harmonics': document.getElementById('harmonicsKnob'),
+    'attack': document.getElementById('attackKnob'),
+    'decay': document.getElementById('decayKnob'),
+    'sustain': document.getElementById('sustainKnob'),
+    'release': document.getElementById('releaseKnob')
 }
 
 document.getElementById("instrument").addEventListener('change', (event)=>{
@@ -90,10 +95,10 @@ socket.on('user data', function (userdata) {
 function getInstrumentString(instrumentNumber) {
     return `
     instr ${instrumentNumber}
-    iAtt = 0.01
-    iDec = 0.0
-    iSus = 1.0
-    iRel = 0.1
+    iAtt chnget "attack${instrumentNumber}"
+    iDec chnget "decay${instrumentNumber}"
+    iSus chnget "sustain${instrumentNumber}"
+    iRel chnget "release${instrumentNumber}"
     kEnv madsr iAtt, iDec, iSus, iRel
     icps = cpsmidi()
     kAmp chnget "amplitude${instrumentNumber}"
@@ -107,10 +112,10 @@ function getInstrumentString(instrumentNumber) {
 function getVco2String(instrumentNumber, iMode = 0) {
     return `
     instr ${instrumentNumber}
-    iAtt = 0.01
-    iDec = 0.0
-    iSus = 1.0
-    iRel = 0.1
+    iAtt chnget "attack${instrumentNumber}"
+    iDec chnget "decay${instrumentNumber}"
+    iSus chnget "sustain${instrumentNumber}"
+    iRel chnget "release${instrumentNumber}"
     iMode = ${iMode}
     kEnv madsr iAtt, iDec, iSus, iRel
     icps = cpsmidi()
@@ -126,15 +131,36 @@ function getVco2String(instrumentNumber, iMode = 0) {
 function getOscilString(instrumentNumber){
     return `
     instr ${instrumentNumber}
-    iAtt = 0.01
-    iDec = 0.0
-    iSus = 1.0
-    iRel = 0.1
+    iAtt chnget "attack${instrumentNumber}"
+    iDec chnget "decay${instrumentNumber}"
+    iSus chnget "sustain${instrumentNumber}"
+    iRel chnget "release${instrumentNumber}"
     kEnv madsr iAtt, iDec, iSus, iRel
     icps = cpsmidi()
     kAmp chnget "amplitude${instrumentNumber}"
     kCutoffFrequency chnget "cutoffFrequency${instrumentNumber}"
     a1 oscil kAmp, icps
+    a2 moogvcf a1, kCutoffFrequency, 0.8
+    outs a2*kEnv,a2*kEnv
+    endin`
+}
+
+function getGBuzzString(instrumentNumber){
+    return `
+    gicos ftgen 0, 0, 2^10, 11, 1
+    instr ${instrumentNumber}
+    iAtt chnget "attack${instrumentNumber}"
+    iDec chnget "decay${instrumentNumber}"
+    iSus chnget "sustain${instrumentNumber}"
+    iRel chnget "release${instrumentNumber}"
+    kEnv madsr iAtt, iDec, iSus, iRel
+    icps = cpsmidi()
+    kAmp chnget "amplitude${instrumentNumber}"
+    kCutoffFrequency chnget "cutoffFrequency${instrumentNumber}"
+    kHarmonics chnget "harmonics${instrumentNumber}"
+    klh  =     1          ; lowest harmonic
+    kmul =     1          ; amplitude coefficient multiplier
+    a1 gbuzz kAmp, icps, kHarmonics, klh, kmul, gicos
     a2 moogvcf a1, kCutoffFrequency, 0.8
     outs a2*kEnv,a2*kEnv
     endin`
@@ -179,6 +205,10 @@ function getOrchestraString(numberOfInstruments = 1) {
             case 8:
                 // Sine Wave
                 orchestraString += getOscilString(i);
+                break;
+            case 9:
+                // GBuzz Wave
+                orchestraString += getGBuzzString(i);
                 break;
             default:
                 orchestraString += getInstrumentString(i);
@@ -265,7 +295,7 @@ function moduleDidLoad() {
 }
 var count = 0;
 
-var enableLogs = false;
+var enableLogs = true;
 
 function handleMessage(message) {
     if (!enableLogs){

@@ -103,7 +103,7 @@
       <option value="6">6: Square/PWM Wave</option>
       <option value="7">7: Sawthooth Wave</option>
       <option value="8">8: Sine Wave</option>
-      <option value="9">9: Triangle Wave</option>
+      <option value="9">9: GBuzz Wave</option>
       <option value="10">10: Saw Wave</option>
       <option value="11">11: Saw Wave</option>
       <option value="12">12: Saw Wave</option>
@@ -136,10 +136,18 @@
   </div>
   <div class="knob-wrapper">
     <div class="knob-title">
-      Pulse Width (Inst 5&6)
+      Pulse Width (5&6)
     </div>
     <div class="knob">
       <webaudio-knob id="pwKnob" midilearn="1" midicc="1.3" src="/public/img/LittlePhatty.png" value="0.5" step="0.01" min="0.5" max="0.99" diameter="64"></webaudio-knob>
+    </div>
+  </div>
+  <div class="knob-wrapper">
+    <div class="knob-title">
+      Harmonics (9)
+    </div>
+    <div class="knob">
+      <webaudio-knob id="harmonicsKnob" midilearn="1" midicc="1.4" src="/public/img/LittlePhatty.png" value="1" step="1" min="1" max="20" diameter="64"></webaudio-knob>
     </div>
   </div>
   <div class="knob-wrapper">
@@ -148,6 +156,40 @@
     </div>
     <div class="knob">
       <webaudio-switch diameter="64" type="kick" id="panic" src="/public/img/redbutton128.png"></webaudio-switch>
+    </div>
+  </div>
+  <div class="knob-wrapper">
+    <div style="float:left;">
+      <div class="knob-title">
+        A
+      </div>
+      <div class="knob">
+        <webaudio-slider id="attackKnob" midilearn="1" midicc="1.5" src="/public/img/vsliderbody.png" knobsrc="/public/img/vsliderknob.png" value="0.01" min="0.01" max="1" step="0.01" basewidth="24" baseheight="128" knobwidth="24" knobheight="24" ditchlength="100" ></webaudio-slider>
+      </div>
+    </div>
+    <div style="float:left;">
+      <div class="knob-title">
+        D
+      </div>
+      <div class="knob">
+        <webaudio-slider id="decayKnob" midilearn="1" midicc="1.6" src="/public/img/vsliderbody.png" knobsrc="/public/img/vsliderknob.png" value="0" min="0" max="1" step="0.01" basewidth="24" baseheight="128" knobwidth="24" knobheight="24" ditchlength="100" ></webaudio-slider>
+      </div>
+    </div>
+    <div style="float:left;">
+      <div class="knob-title">
+        S
+      </div>
+      <div class="knob">
+        <webaudio-slider id="sustainKnob"  midilearn="1" midicc="1.7" src="/public/img/vsliderbody.png" knobsrc="/public/img/vsliderknob.png" value="1" min="0" max="1" step="0.01" basewidth="24" baseheight="128" knobwidth="24" knobheight="24" ditchlength="100" ></webaudio-slider>
+      </div>
+    </div>
+    <div style="float:left;">
+      <div class="knob-title">
+        R
+      </div>
+      <div class="knob">
+        <webaudio-slider id="releaseKnob"  midilearn="1" midicc="1.8" src="/public/img/vsliderbody.png" knobsrc="/public/img/vsliderknob.png" value="0" min="0.01" max="1" step="0.01" basewidth="24" baseheight="128" knobwidth="24" knobheight="24" ditchlength="100" ></webaudio-slider>
+      </div>
     </div>
   </div>
   <div style="clear:both"></div>
