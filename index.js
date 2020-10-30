@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
   socket.on('parameter change', (channel, parameter, value) => {
     console.log(`channel ${channel} - ${parameter}: ${value}`);
     instrumentManager.setParameter(channel, parameter, value);
-    io.emit('parameter change', channel, parameter, value);
+    socket.broadcast.emit('parameter change', channel, parameter, value);
   });
   socket.on('change instrument', (instrumentNumber) => {
     console.log(`Changing to instrument: ${instrumentNumber}`);
