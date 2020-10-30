@@ -24,10 +24,14 @@ usernameInput.addEventListener('change', ()=>{
 
 document.getElementById("panic").addEventListener('click', (event)=>{
     console.log("PANIC!!!");
+    allNotesOff()
+});
+
+function allNotesOff() {
     for (var i=1; i<=12; i++){
         csound.ControlChange(i, 123);
     }
-});
+}
 
 function changeName(newName){
     localStorage.setItem('username', newName);
@@ -37,6 +41,7 @@ function changeName(newName){
 function changeInstrument(instrumentNumber){
     console.log("changing instrument");
     gInstrumentNumber = instrumentNumber;
+    allNotesOff();
     socket.emit('change instrument', instrumentNumber);
 }
 
