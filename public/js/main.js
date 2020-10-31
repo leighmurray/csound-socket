@@ -1,17 +1,38 @@
 var socket = io();
 var gInstrumentNumber = 1;
 
-var knobs = {
-    'cutoffFrequency': document.getElementById("cfKnob"),
-    'amplitude': document.getElementById("amplitudeKnob"),
-    'pulseWidth': document.getElementById("pwKnob"),
-    'harmonics': document.getElementById('harmonicsKnob'),
-    'attack': document.getElementById('attackKnob'),
-    'decay': document.getElementById('decayKnob'),
-    'sustain': document.getElementById('sustainKnob'),
-    'release': document.getElementById('releaseKnob'),
-    'multiplier': document.getElementById('multiplierKnob')
-}
+var specificKnobs = document.getElementsByClassName("specific");
+
+var knobs = {};
+
+var synthAttributes = [
+    'cutoffFrequency',
+    'amplitude',
+    'pulseWidth',
+    'harmonics',
+    'attack',
+    'decay',
+    'sustain',
+    'release',
+    'multiplier',
+    'filterAttack',
+    'filterDecay',
+    'filterSustain',
+    'filterRelease',
+    'amplitudeTwo',
+    'filterResonance',
+    'cent',
+    'centTwo',
+    'octave',
+    'octaveTwo',
+    'pulseWidthTwo',
+    'type',
+    'typeTwo'
+]
+synthAttributes.forEach(element => {
+    knobs[element] = document.getElementById(element + "Knob");
+});
+
 
 document.getElementById("instrument").addEventListener('change', (event)=>{
     changeInstrument(parseInt(event.target.value));
@@ -38,17 +59,28 @@ function changeName(newName){
     socket.emit('set name', newName);
 }
 
+function updateSpecificKnobs(instrumentNumber) {
+    for (i = 0; i < specificKnobs.length; i++) {
+        if (specificKnobs[i].classList.contains("inst" + instrumentNumber)){
+            specificKnobs[i].classList.remove("disabled");
+        } else {
+            specificKnobs[i].classList.add("disabled");
+        }
+    }
+}
+
 function changeInstrument(instrumentNumber){
     console.log("changing instrument");
     gInstrumentNumber = instrumentNumber;
     allNotesOff();
+    updateSpecificKnobs(instrumentNumber);
     socket.emit('change instrument', instrumentNumber);
 }
 
 function init() {
     console.log("init");
     socket.emit('init');
-
+    updateSpecificKnobs();
     var username = localStorage.getItem('username')
     if (username){
         usernameInput.value = username;
@@ -161,6 +193,64 @@ function getGBuzzString(instrumentNumber){
     endin`
 }
 
+function getSubSynthString(instrumentNumber){
+    return `
+    instr ${instrumentNumber}
+
+    ; asign p-fields to variables
+    iCPS   =            cpsmidi() ;convert from note number to cps
+    kAmp1  chnget       "amplitude${instrumentNumber}" ;amplitude 1
+    iType1 chnget       "type${instrumentNumber}" ;type 1
+    kPW1   chnget       "pulseWidth${instrumentNumber}" ;pulse width 1
+    kOct1  chnget       "octave${instrumentNumber}" ;convert from octave displacement to multiplier ;octave disp. 1
+    kTune1 chnget       "cent${instrumentNumber}"   ;convert from cents displacement to multiplier ;tuning disp. 1
+    kAmp2  chnget       "amplitudeTwo${instrumentNumber}" ;amplitude 2
+    iType2 chnget       "typeTwo${instrumentNumber}" ;type 2
+    kPW2   chnget       "pulseWidthTwo${instrumentNumber}" ;pulse width 2
+    kOct2  chnget       "octaveTwo${instrumentNumber}" ;octave displacement 2
+    kTune2 chnget       "centTwo${instrumentNumber}" ;tuning disp. 2
+    iCF    chnget       "cutoffFrequency${instrumentNumber}" ;filter cutoff freq
+    iFAtt  chnget       "filterAttack${instrumentNumber}" ;filter env. attack time
+    iFDec  chnget       "filterDecay${instrumentNumber}" ;filter env. decay time
+    iFSus  chnget       "filterSustain${instrumentNumber}" ;filter env. sustain level
+    iFRel  chnget       "filterRelease${instrumentNumber}" ;filter release time
+    kRes   chnget       "filterResonance${instrumentNumber}" ;filter resonance
+    iAAtt  chnget       "attack${instrumentNumber}" ;amp. env. attack
+    iADec  chnget       "decay${instrumentNumber}" ;amp. env. decay.
+    iASus  chnget       "sustain${instrumentNumber}" ;amp. env. sustain
+    iARel  chnget       "release${instrumentNumber}" ;amp. env. release
+
+    ;oscillator 1
+    ;if type is sawtooth or square...
+    if iType1==1||iType1==2 then
+    ;...derive vco2 'mode' from waveform type
+    iMode1 = (iType1=1?0:2)
+    aSig1  vco2   kAmp1,iCPS*octave(kOct1)*cent(kTune1),iMode1,kPW1;VCO audio oscillator
+    else                                   ;otherwise...
+    aSig1  noise  kAmp1, 0.5              ;...generate white noise
+    endif
+
+    ;oscillator 2 (identical in design to oscillator 1)
+    if iType2==1||iType2==2 then
+    iMode2  =  (iType2=1?0:2)
+    aSig2  vco2   kAmp2, iCPS*octave(kOct2)*cent(kTune2), iMode2, kPW2
+    else
+    aSig2 noise  kAmp2,0.5
+    endif
+
+    ;mix oscillators
+    aMix       sum          aSig1,aSig2
+    ;lowpass filter
+    kFiltEnv   expsegr      0.0001, iFAtt,iCPS*iCF*0.001, iFDec, iCPS*iCF*0.001*iFSus, iFRel, 0.0001
+    aOut       moogladder   aMix, kFiltEnv, kRes
+
+    ;amplitude envelope
+    aAmpEnv    expsegr      0.0001, iAAtt, 1, iADec, iASus, iARel, 0.0001
+    aOut       =            aOut*aAmpEnv
+           outs         aOut, aOut
+    endin`
+}
+
 function getOrchestraString(numberOfInstruments = 1) {
     var orchestraString = "";
     for (var i=1; i<= numberOfInstruments; i++){
@@ -205,6 +295,11 @@ function getOrchestraString(numberOfInstruments = 1) {
                 // GBuzz Wave
                 orchestraString += getGBuzzString(i);
                 break;
+            case 10:
+                // SubSynth Waves
+                orchestraString += getSubSynthString(i);
+                break;
+
             default:
                 orchestraString += getInstrumentString(i);
         }
@@ -290,7 +385,7 @@ function moduleDidLoad() {
 }
 var count = 0;
 
-var enableLogs = false;
+var enableLogs = true;
 
 function handleMessage(message) {
     if (!enableLogs){
@@ -369,6 +464,7 @@ function SetParameter(channel, parameter, value) {
     csound.SetChannel(name , value);
     console.log("\n********Setting - " + name + ": " + value + "****************\n");
     if (channel == gInstrumentNumber) {
+        console.log(parameter);
         knobs[parameter].setValue(value);
     }
 }
