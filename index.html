@@ -14,7 +14,8 @@
     float: left;
   }
   #instrument-wrapper {
-    background-color:#474741;
+    background-color:#000000;
+
     border: solid 1px black;
     border-radius: 10px;
     padding:10px;
@@ -23,7 +24,6 @@
     color: #9c9c9c;
     font-weight: 700;
     box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724;
-    background: #474741;
     -moz-box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724;
     -webkit-box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724;
     box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724
@@ -58,6 +58,11 @@
     -moz-box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724;
     -webkit-box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724;
     box-shadow: inset 5px 5px 5px 0 #66665e, inset -5px -5px 5px #272724
+  }
+
+  #instrument-wrapper, .knob-wrapper {
+    background-image: url("/public/img/background.jpg");
+    background-size: 100px;
   }
   .knob {
     padding: 10px;
@@ -238,7 +243,7 @@
           AMP
         </div>
         <div class="knob">
-          <webaudio-knob id="amplitudeKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0.5" step="0.05" min="0" max="0.7" diameter="48" ></webaudio-knob>
+          <webaudio-knob id="amplitudeKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0.5" step="0.05" min="0" max="0.7" diameter="64" ></webaudio-knob>
         </div>
       </div>
       <div class="knob-wrapper">
@@ -246,7 +251,7 @@
           LP
         </div>
         <div class="knob">
-          <webaudio-knob id="cutoffFrequencyKnob" midilearn="1" midicc="1.1" src="/public/img/LittlePhatty.png" value="14000" step="50" min="100" max="14000" diameter="48" ></webaudio-knob>
+          <webaudio-knob id="cutoffFrequencyKnob" midilearn="1" midicc="1.1" src="/public/img/LittlePhatty.png" value="14000" step="50" min="100" max="14000" diameter="64" ></webaudio-knob>
         </div>
       </div>
       <div class="knob-wrapper specific inst5 inst6 inst10">
@@ -254,7 +259,7 @@
           PW
         </div>
         <div class="knob">
-          <webaudio-knob id="pulseWidthKnob" midilearn="1" midicc="1.2" src="/public/img/LittlePhatty.png" value="0.5" step="0.01" min="0.01" max="0.99" diameter="48"></webaudio-knob>
+          <webaudio-knob id="pulseWidthKnob" midilearn="1" midicc="1.2" src="/public/img/LittlePhatty.png" value="0.5" step="0.01" min="0.01" max="0.99" diameter="64"></webaudio-knob>
         </div>
       </div>
       <div class="knob-wrapper specific inst10">
@@ -262,7 +267,7 @@
           oct1
         </div>
         <div class="knob">
-          <webaudio-knob id="octaveKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0" step="1" min="-2" max="2" diameter="48" ></webaudio-knob>
+          <webaudio-knob id="octaveKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0" step="1" min="-2" max="2" diameter="64" ></webaudio-knob>
         </div>
       </div>
       <div class="knob-wrapper specific inst10">
@@ -270,7 +275,7 @@
           cent1
         </div>
         <div class="knob">
-          <webaudio-knob id="centKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0" step="1" min="-100" max="100" diameter="48" ></webaudio-knob>
+          <webaudio-knob id="centKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0" step="1" min="-100" max="100" diameter="64" ></webaudio-knob>
         </div>
       </div>
       <div class="knob-wrapper specific inst9">
@@ -278,7 +283,7 @@
           Harm
         </div>
         <div class="knob">
-          <webaudio-knob id="harmonicsKnob" midilearn="1" midicc="1.3" src="/public/img/LittlePhatty.png" value="1" step="1" min="1" max="20" diameter="48"></webaudio-knob>
+          <webaudio-knob id="harmonicsKnob" midilearn="1" midicc="1.3" src="/public/img/LittlePhatty.png" value="1" step="1" min="1" max="20" diameter="64"></webaudio-knob>
         </div>
       </div>
       <div class="knob-wrapper specific inst9">
@@ -286,7 +291,7 @@
           Multiplier
         </div>
         <div class="knob">
-          <webaudio-knob id="multiplierKnob" midilearn="1" midicc="1.4" src="/public/img/LittlePhatty.png" value="1" step="0.05" min="0" max="2" diameter="48"></webaudio-knob>
+          <webaudio-knob id="multiplierKnob" midilearn="1" midicc="1.4" src="/public/img/LittlePhatty.png" value="1" step="0.05" min="0" max="2" diameter="64"></webaudio-knob>
         </div>
       </div>
     </div>
@@ -296,7 +301,7 @@
           AMP2
         </div>
         <div class="knob">
-          <webaudio-knob id="amplitudeTwoKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0.5" step="0.05" min="0" max="0.7" diameter="48" ></webaudio-knob>
+          <webaudio-knob id="amplitudeTwoKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0.5" step="0.05" min="0" max="0.7" diameter="64" ></webaudio-knob>
         </div>
       </div>
       <div class="knob-wrapper specific inst10">
@@ -304,7 +309,7 @@
           fRes
         </div>
         <div class="knob">
-          <webaudio-knob id="filterResonanceKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0.3" step="0.05" min="0" max="0.95" diameter="48" ></webaudio-knob>
+          <webaudio-knob id="filterResonanceKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0.3" step="0.05" min="0" max="0.95" diameter="64" ></webaudio-knob>
         </div>
       </div>
       <div class="knob-wrapper specific inst10">
@@ -312,7 +317,7 @@
           PW2
         </div>
         <div class="knob">
-          <webaudio-knob id="pulseWidthTwoKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0.5" step="0.01" min="0.01" max="0.99" diameter="48"></webaudio-knob>
+          <webaudio-knob id="pulseWidthTwoKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="0.5" step="0.01" min="0.01" max="0.99" diameter="64"></webaudio-knob>
         </div>
       </div>
       <div class="knob-wrapper specific inst10">
@@ -320,7 +325,7 @@
           oct2
         </div>
         <div class="knob">
-          <webaudio-knob id="octaveTwoKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="-1" step="1" min="-2" max="2" diameter="48" ></webaudio-knob>
+          <webaudio-knob id="octaveTwoKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="-1" step="1" min="-2" max="2" diameter="64" ></webaudio-knob>
         </div>
       </div>
       <div class="knob-wrapper specific inst10">
@@ -328,7 +333,7 @@
           cent2
         </div>
         <div class="knob">
-          <webaudio-knob id="centTwoKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="20" step="1" min="-100" max="100" diameter="48" ></webaudio-knob>
+          <webaudio-knob id="centTwoKnob" midilearn="1" src="/public/img/LittlePhatty.png" value="20" step="1" min="-100" max="100" diameter="64" ></webaudio-knob>
         </div>
       </div>
     </div>
