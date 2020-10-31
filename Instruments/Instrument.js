@@ -1,28 +1,40 @@
-class Instrument {
-    constructor(instrumentNumber)
-    {
-        this.amplitude = 0.5;
-        this.cutoffFrequency = 14000;
-        this.pulseWidth = 0.5;
-        this.harmonics = 1;
-        this.attack = 0.01;
-        this.decay = 0.0;
-        this.sustain = 1.0;
-        this.release = 0.01;
-        this.multiplier = 1;
-        this.type = 2;
-        this.octave = 0;
-        this.cent = 0;
-        this.amplitudeTwo = 0.5;
-        this.typeTwo = 1;
-        this.octaveTwo = -1;
-        this.centTwo = 20;
-        this.filterAttack = 0.01;
-        this.filterDecay = 1;
-        this.filterSustain = 0.01;
-        this.filterRelease = 0.1;
-        this.filterResonance = 0.3;
-    }
+class BaseInstrument {
+    amplitude = 0.5;
+    cutoffFrequency = 14000;
+    attack = 0.01;
+    decay = 0.0;
+    sustain = 1.0;
+    release = 0.01;
 }
 
-module.exports = Instrument;
+class PulseWidthInstrument extends BaseInstrument {
+    pulseWidth = 0.5;
+}
+
+class GBuzzInstrument extends BaseInstrument {
+    harmonics = 1;
+    multiplier = 1;
+}
+
+class SubSynthInstrument extends PulseWidthInstrument {
+    type = 2;
+    octave = 0;
+    cent = 0;
+    amplitudeTwo = 0.5;
+    typeTwo = 1;
+    octaveTwo = -1;
+    centTwo = 20;
+    filterAttack = 0.01;
+    filterDecay = 1;
+    filterSustain = 0.01;
+    filterRelease = 0.1;
+    filterResonance = 0.3;
+}
+
+
+module.exports =  {
+    "BaseInstrument": BaseInstrument,
+    "PulseWidthInstrument": PulseWidthInstrument,
+    "GBuzzInstrument": GBuzzInstrument,
+    'SubSynthInstrument': SubSynthInstrument
+}

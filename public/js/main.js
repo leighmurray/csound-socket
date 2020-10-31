@@ -101,14 +101,14 @@ socket.on('instrument data', function(instrumentNumber, instrumentData){
     }
 });
 
-function local_note_on(noteValue, velocity=90){
-    socket.emit('note on', gInstrumentNumber, noteValue, velocity);
-    Play(gInstrumentNumber, noteValue, velocity);
+function local_note_on(noteValue){
+    socket.emit('note on', gInstrumentNumber, noteValue);
+    Play(gInstrumentNumber, noteValue);
 }
 
-socket.on('note on', function(channel, noteValue, velocity){
-    console.log(`Playing note ${noteValue}, ${velocity} on ${channel}`);
-    Play(channel, noteValue, velocity);
+socket.on('note on', function(channel, noteValue){
+    console.log(`Playing note ${noteValue} on ${channel}`);
+    Play(channel, noteValue);
 });
 
 function local_note_off(noteValue){
@@ -433,9 +433,8 @@ function WebMIDI_err(err) {
 }
 
 // click handler
-function Play(channel, note, velocity,) {
-    csound.NoteOn(channel, note, velocity);
-
+function Play(channel, note) {
+    csound.NoteOn(channel, note, 90);
 }
 
 function Stop(channel, note) {

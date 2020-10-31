@@ -32,9 +32,9 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('note on', (channel, note, velocity) => {
-    console.log(`channel ${channel} - Note On: ${note} - v:${velocity}`);
-    socket.broadcast.emit('note on', channel, note, velocity);
+  socket.on('note on', (channel, note) => {
+    console.log(`channel ${channel} - Note On: ${note}`);
+    socket.broadcast.emit('note on', channel, note);
   });
 
   socket.on('note off', (channel, note) => {
