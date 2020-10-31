@@ -29,6 +29,7 @@ class SubSynthInstrument extends PulseWidthInstrument {
     filterSustain = 0.01;
     filterRelease = 0.1;
     filterResonance = 0.3;
+    pulseWidthTwo = 0.5;
 }
 
 
