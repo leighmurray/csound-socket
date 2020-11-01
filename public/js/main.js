@@ -33,6 +33,13 @@ synthAttributes.forEach(element => {
     knobs[element] = document.getElementById(element + "Knob");
 });
 
+document.getElementById("limiterKnob").addEventListener('change', (event)=>{
+    setLimiter(parseInt(event.target.value));
+});
+
+document.getElementById("gainKnob").addEventListener('input', (event)=>{
+    setGain(parseFloat(event.target.value));
+});
 
 document.getElementById("instrument").addEventListener('change', (event)=>{
     changeInstrument(parseInt(event.target.value));
@@ -52,6 +59,14 @@ function allNotesOff() {
     for (var i=1; i<=12; i++){
         csound.ControlChange(i, 123);
     }
+}
+
+function setLimiter(isLimiterOn) {
+    csound.SetChannel('DoLimiter', isLimiterOn);
+}
+
+function setGain(gain){
+    csound.SetChannel('Gain', gain);
 }
 
 function changeName(newName){
@@ -81,6 +96,7 @@ function init() {
     console.log("init");
     socket.emit('init');
     updateSpecificKnobs();
+    setGain(0.5);
     var username = localStorage.getItem('username')
     if (username){
         usernameInput.value = username;
@@ -156,7 +172,8 @@ function getInstrumentString(instrumentNumber) {
     ${getCommonString(instrumentNumber)}
     a1 vco2 kAmp, icps
     a2 moogvcf a1, kCutoffFrequency, 0.8
-    outs a2*kEnv,a2*kEnv
+    aOut = a2*kEnv
+    gaMyBuffer += aOut
     endin`
 }
 
@@ -167,7 +184,8 @@ function getVco2String(instrumentNumber, iMode = 0) {
     kPulseWidth chnget "pulseWidth${instrumentNumber}"
     a1 vco2 kAmp, icps, iMode, kPulseWidth
     a2 moogvcf a1, kCutoffFrequency, 0.8
-    outs a2*kEnv,a2*kEnv
+    aOut = a2*kEnv
+    gaMyBuffer += aOut
     endin`
 }
 
@@ -176,7 +194,8 @@ function getOscilString(instrumentNumber){
     ${getCommonString(instrumentNumber)}
     a1 oscil kAmp, icps
     a2 moogvcf a1, kCutoffFrequency, 0.8
-    outs a2*kEnv,a2*kEnv
+    aOut = a2*kEnv
+    gaMyBuffer += aOut
     endin`
 }
 
@@ -189,7 +208,8 @@ function getGBuzzString(instrumentNumber){
     klh  =     1          ; lowest harmonic
     a1 gbuzz kAmp, icps, kHarmonics, klh, kMultiplier, gicos
     a2 moogvcf a1, kCutoffFrequency, 0.8
-    outs a2*kEnv,a2*kEnv
+    aOut = a2*kEnv
+    gaMyBuffer += aOut
     endin`
 }
 
@@ -247,14 +267,33 @@ function getSubSynthString(instrumentNumber){
     ;amplitude envelope
     aAmpEnv    expsegr      0.0001, iAAtt, 1, iADec, iASus, iARel, 0.0001
     aOut       =            aOut*aAmpEnv
-           outs         aOut, aOut
+    gaMyBuffer += aOut
     endin`
+}
+
+
+function getMasterString()
+{
+    return `
+    instr MASTER
+    kDoLimiter chnget "DoLimiter"
+    kGain chnget "Gain"
+
+    aOut = gaMyBuffer*kGain
+
+    if kDoLimiter == 1 then
+        aOut limit aOut, -0.9, 0.9
+    endif
+    outs aOut, aOut
+    gaMyBuffer = 0
+    endin`;
 }
 
 function getOrchestraString(numberOfInstruments = 1) {
     var orchestraString = "";
     for (var i=1; i<= numberOfInstruments; i++){
         orchestraString += `
+        gaMyBuffer init 0
         massign ${i},${i}`
     }
     for (var i=1; i<= numberOfInstruments; i++){
@@ -305,6 +344,7 @@ function getOrchestraString(numberOfInstruments = 1) {
         }
 
     }
+    orchestraString += getMasterString();
     console.log(orchestraString);
     return orchestraString;
 }
@@ -376,6 +416,10 @@ function moduleDidLoad() {
     console.warn = handleMessage;
     csound.Play();
     csound.CompileOrc(getOrchestraString(12));
+    csound.ReadScore(`
+    f0 z
+    i"MASTER" 0 z
+    `);
     init();
     if (navigator.requestMIDIAccess)
         navigator.requestMIDIAccess().then(WebMIDI_init, WebMIDI_err);
