@@ -1,5 +1,5 @@
 var socket = io();
-var gInstrumentNumber = 1;
+var gInstrumentNumber = 10;
 
 var specificKnobs = document.getElementsByClassName("specific");
 
@@ -95,7 +95,7 @@ function changeInstrument(instrumentNumber){
 function init() {
     console.log("init");
     socket.emit('init');
-    updateSpecificKnobs();
+    changeInstrument(gInstrumentNumber);
     setGain(0.5);
     var username = localStorage.getItem('username')
     if (username){
