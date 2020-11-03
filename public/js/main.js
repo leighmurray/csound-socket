@@ -244,7 +244,7 @@ function getSubSynthString(instrumentNumber){
     ;if type is sawtooth or square...
     if iType1==1||iType1==2 then
     ;...derive vco2 'mode' from waveform type
-    iMode1 = (iType1=1?0:2)
+    iMode1 = (iType1=1?4:2)
     aSig1  vco2   kAmp1,iCPS*octave(kOct1)*cent(kTune1),iMode1,kPW1;VCO audio oscillator
     else                                   ;otherwise...
     aSig1  noise  kAmp1, 0.5              ;...generate white noise
@@ -252,7 +252,7 @@ function getSubSynthString(instrumentNumber){
 
     ;oscillator 2 (identical in design to oscillator 1)
     if iType2==1||iType2==2 then
-    iMode2  =  (iType2=1?0:2)
+    iMode2  =  (iType2=1?4:2)
     aSig2  vco2   kAmp2, iCPS*octave(kOct2)*cent(kTune2), iMode2, kPW2
     else
     aSig2 noise  kAmp2,0.5
@@ -260,6 +260,7 @@ function getSubSynthString(instrumentNumber){
 
     ;mix oscillators
     aMix       sum          aSig1,aSig2
+
     ;lowpass filter
     kFiltEnv   expsegr      0.0001, iFAtt,iCPS*iCF*0.001, iFDec, iCPS*iCF*0.001*iFSus, iFRel, 0.0001
     aOut       moogladder   aMix, kFiltEnv, kRes
