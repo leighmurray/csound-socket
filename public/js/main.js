@@ -101,6 +101,11 @@ function init() {
     if (username){
         usernameInput.value = username;
         changeName(username);
+    } else {
+        username = prompt("What is your name?");
+        username = username ? username : "anon";
+        usernameInput.value = username;
+        changeName(username);
     }
 
     for (const [parameter, knob] of Object.entries(knobs)) {
